@@ -4,11 +4,16 @@ import hr.xmjosic.springbatchdemoapp.entity.Personas;
 import hr.xmjosic.springbatchdemoapp.entity.PersonasFullEntity;
 import hr.xmjosic.springbatchdemoapp.util.HashProcessor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 
+@Lazy
+@Scope("prototype")
 @Component
 @RequiredArgsConstructor
 public class PersonasFullToPersonasConverter implements Converter<PersonasFullEntity, Personas> {

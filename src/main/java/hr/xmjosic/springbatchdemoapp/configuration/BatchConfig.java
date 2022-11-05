@@ -1,6 +1,7 @@
 package hr.xmjosic.springbatchdemoapp.configuration;
 
 import hr.xmjosic.springbatchdemoapp.dao.PersonasFullRepository;
+import hr.xmjosic.springbatchdemoapp.dao.PersonasRepository;
 import hr.xmjosic.springbatchdemoapp.entity.Personas;
 import hr.xmjosic.springbatchdemoapp.entity.PersonasFullEntity;
 import lombok.RequiredArgsConstructor;
@@ -64,6 +65,18 @@ public class BatchConfig {
         .build();
   }
 
+  @StepScope
+  @Bean
+  public RepositoryItemReader<Personas> repositoryPersonasItemReader(
+      PersonasRepository repository) {
+    return new RepositoryItemReaderBuilder<Personas>()
+        .name("repositoryDataReader")
+        .repository(repository)
+        .methodName("findAll")
+        .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
+        .build();
+  }
+
   @Bean
   public Step step(
       PersonasItemWriter writer,
@@ -75,6 +88,21 @@ public class BatchConfig {
         .reader(repositoryItemReader)
         .processor(processor)
         .writer(writer)
+        .allowStartIfComplete(true)
+        .build();
+  }
+
+  @Bean
+  public Step stepCleanup(
+      RepositoryItemReader<Personas> repositoryPersonasItemReader,
+      PersonasCleanupProcessor cleanupProcessor,
+      PersonasRepository repository) {
+    return stepBuilderFactory
+        .get("stepCleanup")
+        .<Personas, Personas>chunk(10)
+        .reader(repositoryPersonasItemReader)
+        .processor(cleanupProcessor)
+        .writer(repository::deleteAll)
         .allowStartIfComplete(true)
         .build();
   }
@@ -92,8 +120,8 @@ public class BatchConfig {
   }
 
   @Bean
-  public Job job(Step step) {
-    return jobBuilderFactory.get("job1").flow(step).end().build();
+  public Job job(Step step, Step stepCleanup) {
+    return jobBuilderFactory.get("job1").flow(step).next(stepCleanup).end().build();
   }
 
   @Bean

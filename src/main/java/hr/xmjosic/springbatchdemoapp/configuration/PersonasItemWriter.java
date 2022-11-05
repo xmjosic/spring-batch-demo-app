@@ -4,12 +4,15 @@ import hr.xmjosic.springbatchdemoapp.dao.PersonasRepository;
 import hr.xmjosic.springbatchdemoapp.entity.Personas;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Slf4j
+@StepScope
 @Component
 @RequiredArgsConstructor
 public class PersonasItemWriter implements ItemWriter<Personas> {

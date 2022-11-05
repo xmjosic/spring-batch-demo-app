@@ -24,7 +24,7 @@ public class BatchController {
   @PostMapping("/start")
   public void start() {
     try {
-      jobLauncher.run(job, new JobParametersBuilder().toJobParameters());
+      jobLauncher.run(job, new JobParametersBuilder().addLong("jobId", System.currentTimeMillis()).toJobParameters());
     } catch (JobExecutionAlreadyRunningException
         | JobRestartException
         | JobInstanceAlreadyCompleteException

@@ -41,6 +41,9 @@ public class Personas {
   @Column(name = "RNUM")
   private String rnum;
 
+  @Column(name = "JOB_ID")
+  private long jobID;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
