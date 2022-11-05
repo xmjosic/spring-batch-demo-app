@@ -17,4 +17,4 @@ curl -X POST "http://localhost:8181/api/v1/batch/start
 
 Second table after CSV table update/delete:
 
-![](../../Desktop/Screenshot 2022-11-05 at 12.51.45.png)
+![](Screenshot_2022-11-05at12_51_45.png)
