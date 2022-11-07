@@ -33,6 +33,9 @@ public class PersonasFullEntity {
   @Column(name = "EMAIL")
   private String email;
 
+  @Column(name = "TEST_FLAG")
+  private boolean test;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

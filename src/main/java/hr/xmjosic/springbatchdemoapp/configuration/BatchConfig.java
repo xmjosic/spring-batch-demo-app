@@ -12,6 +12,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -42,7 +43,7 @@ public class BatchConfig {
         .name("mockDataReader")
         .resource(new ClassPathResource("MOCK_DATA.csv"))
         .delimited()
-        .names("rnum", "first_name", "last_name", "email")
+        .names("rnum", "first_name", "last_name", "email", "test")
         .linesToSkip(1)
         .fieldSetMapper(
             new BeanWrapperFieldSetMapper<>() {
@@ -88,7 +89,8 @@ public class BatchConfig {
         .reader(repositoryItemReader)
         .processor(processor)
         .writer(writer)
-        .allowStartIfComplete(true)
+        .faultTolerant()
+        .skipPolicy(new CustomSkipPolicy())
         .build();
   }
 
@@ -103,7 +105,8 @@ public class BatchConfig {
         .reader(repositoryPersonasItemReader)
         .processor(cleanupProcessor)
         .writer(repository::deleteAll)
-        .allowStartIfComplete(true)
+        .faultTolerant()
+        .skipPolicy(new CustomSkipPolicy())
         .build();
   }
 
@@ -115,17 +118,29 @@ public class BatchConfig {
         .<PersonasFullEntity, PersonasFullEntity>chunk(10)
         .reader(reader)
         .writer(writer)
-        .allowStartIfComplete(true)
+        .faultTolerant()
+        .skipPolicy(new CustomSkipPolicy())
         .build();
   }
 
   @Bean
   public Job job(Step step, Step stepCleanup) {
-    return jobBuilderFactory.get("job1").flow(step).next(stepCleanup).end().build();
+    return jobBuilderFactory
+        .get("job1")
+        .incrementer(new RunIdIncrementer())
+        .flow(step)
+        .next(stepCleanup)
+        .end()
+        .build();
   }
 
   @Bean
   public Job jobZero(Step stepZero) {
-    return jobBuilderFactory.get("jobZero").flow(stepZero).end().build();
+    return jobBuilderFactory
+        .get("jobZero")
+        .incrementer(new RunIdIncrementer())
+        .flow(stepZero)
+        .end()
+        .build();
   }
 }
